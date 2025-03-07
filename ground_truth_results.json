@@ -1,0 +1,22 @@
+[
+    {
+        "Total Fleet": 114,
+        "Annual Mileage": 2128374,
+        "Daily Mileage": 8513.5,
+        "Reimbursed Mileage": null,
+        "States": [
+            "OR",
+            "WA"
+        ]
+    },
+    {
+        "Total Fleet": 100,
+        "Annual Mileage": null,
+        "Daily Mileage": null,
+        "Reimbursed Mileage": 100000,
+        "States": [
+            "CO",
+            "UT"
+        ]
+    }
+]

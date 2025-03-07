@@ -1,0 +1,59 @@
+name: Build Artifacts
+
+run-name: 'Package: ${{ github.ref_name }}_${{ github.run_id }}_${{ github.run_attempt }}'
+
+on:
+  push:
+    branches: ['main']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+  actions: write
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    outputs:
+      build-number: ${{ steps.package-default-version.outputs.version }}
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
+
+      - name: List files and directories for debug
+        run: |
+          echo "Listing root directory contents:"
+          ls -l
+          echo "Listing cloudformation directory contents:"
+          ls -l cloudformation || echo "cloudformation directory not found"
+
+      - id: package-default-version
+        name: Get Default Version outputs
+        run: echo "version=${{ github.ref_name }}_${{ github.run_id }}_${{ github.run_attempt }}" >> $GITHUB_ENV
+
+      - id: package-create
+        name: Package
+        run: |
+          mkdir -p package
+          [ -d cloudformation ] && cp -r cloudformation package/
+          [ -d model_container ] && cp -r model_container package/
+          [ -d k8s ] && cp -r k8s package/
+          echo "Contents of package directory:"
+          ls -la package
+          cd package
+          zip -r ../${{ env.version }}.zip .
+
+      - id: package-upload
+        name: Upload Package
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.version }}
+          path: ./package
+          retention-days: 30
+
+      - name: Confirm Upload
+        run: |
+          echo "Uploaded artifact name: ${{ env.version }}"
+          ls -la package
